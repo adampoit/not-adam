@@ -1,0 +1,94 @@
+name: not-adam
+description: Create a not-adam GitHub App token and configure git identity.
+
+inputs:
+  app-id:
+    description: GitHub App ID.
+    required: true
+  private-key:
+    description: GitHub App private key PEM.
+    required: true
+  owner:
+    description: Repository owner for the installation token. Defaults to the calling repository owner.
+    required: false
+    default: ""
+  repositories:
+    description: Comma or newline-separated repository names to scope the token to. Defaults to the calling repository name.
+    required: false
+    default: ""
+  configure-git:
+    description: Whether to configure git user.name and user.email.
+    required: false
+    default: "true"
+  git-config-scope:
+    description: Git config scope to update; either global or local.
+    required: false
+    default: global
+  git-user-name:
+    description: Optional git user.name override. Defaults to <app-slug>[bot].
+    required: false
+    default: ""
+  git-user-email:
+    description: Optional git user.email override. Defaults to the app bot noreply address when it can be resolved.
+    required: false
+    default: ""
+
+outputs:
+  token:
+    description: Short-lived GitHub App installation token.
+    value: ${{ steps.create-token.outputs.token }}
+  installation-id:
+    description: GitHub App installation ID.
+    value: ${{ steps.create-token.outputs.installation-id }}
+  app-slug:
+    description: GitHub App slug.
+    value: ${{ steps.create-token.outputs.app-slug }}
+
+runs:
+  using: composite
+  steps:
+    - name: Create GitHub App token
+      id: create-token
+      uses: actions/create-github-app-token@v2
+      with:
+        app-id: ${{ inputs.app-id }}
+        private-key: ${{ inputs.private-key }}
+        owner: ${{ inputs.owner || github.repository_owner }}
+        repositories: ${{ inputs.repositories || github.event.repository.name }}
+
+    - name: Configure git identity
+      if: ${{ inputs.configure-git == 'true' }}
+      shell: bash
+      env:
+        GH_TOKEN: ${{ steps.create-token.outputs.token }}
+        APP_SLUG: ${{ steps.create-token.outputs.app-slug }}
+        GIT_CONFIG_SCOPE: ${{ inputs.git-config-scope }}
+        GIT_USER_NAME: ${{ inputs.git-user-name }}
+        GIT_USER_EMAIL: ${{ inputs.git-user-email }}
+      run: |
+        set -euo pipefail
+
+        case "$GIT_CONFIG_SCOPE" in
+          global) scope_flag="--global" ;;
+          local) scope_flag="--local" ;;
+          *)
+            echo "git-config-scope must be 'global' or 'local'" >&2
+            exit 1
+            ;;
+        esac
+
+        bot_user="${APP_SLUG}[bot]"
+        user_name="${GIT_USER_NAME:-$bot_user}"
+        user_email="$GIT_USER_EMAIL"
+
+        if [ -z "$user_email" ]; then
+          bot_id="$(gh api "/users/$bot_user" --jq .id 2>/dev/null || true)"
+          if [ -n "$bot_id" ]; then
+            user_email="${bot_id}+${bot_user}@users.noreply.github.com"
+          else
+            user_email="${bot_user}@users.noreply.github.com"
+          fi
+        fi
+
+        git config "$scope_flag" user.name "$user_name"
+        git config "$scope_flag" user.email "$user_email"
