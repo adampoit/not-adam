@@ -8,15 +8,15 @@ inputs:
   owner:
     description: Repository owner for the installation token. Defaults to the calling repository owner.
     required: false
-    default: ""
+    default: ''
   repositories:
     description: Comma or newline-separated repository names to scope the token to. Defaults to the calling repository name.
     required: false
-    default: ""
+    default: ''
   configure-git:
     description: Whether to configure git user.name and user.email.
     required: false
-    default: "true"
+    default: 'true'
   git-config-scope:
     description: Git config scope to update; either global or local.
     required: false
@@ -24,11 +24,11 @@ inputs:
   git-user-name:
     description: Optional git user.name override. Defaults to <app-slug>[bot].
     required: false
-    default: ""
+    default: ''
   git-user-email:
     description: Optional git user.email override. Defaults to the app bot noreply address when it can be resolved.
     required: false
-    default: ""
+    default: ''
 
 outputs:
   token:

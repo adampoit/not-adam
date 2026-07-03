@@ -12,22 +12,22 @@ Add this to each repository that uses the action:
 
 ```yaml
 jobs:
-  update:
-    runs-on: ubuntu-latest
-    steps:
-      - id: not-adam
-        uses: adampoit/not-adam@v1
-        with:
-          private-key: ${{ secrets.NOT_ADAM_APP_PRIVATE_KEY }}
+    update:
+        runs-on: ubuntu-latest
+        steps:
+            - id: not-adam
+              uses: adampoit/not-adam@v1
+              with:
+                  private-key: ${{ secrets.NOT_ADAM_APP_PRIVATE_KEY }}
 
-      - uses: actions/checkout@v7
-        with:
-          token: ${{ steps.not-adam.outputs.token }}
+            - uses: actions/checkout@v7
+              with:
+                  token: ${{ steps.not-adam.outputs.token }}
 
-      - name: Do authenticated work
-        env:
-          GH_TOKEN: ${{ steps.not-adam.outputs.token }}
-        run: gh auth status
+            - name: Do authenticated work
+              env:
+                  GH_TOKEN: ${{ steps.not-adam.outputs.token }}
+              run: gh auth status
 ```
 
 The token is scoped to the calling repository by default. Install the GitHub App on any repository that should use this action.
