@@ -2,9 +2,6 @@ name: not-adam
 description: Create a not-adam GitHub App token and configure git identity.
 
 inputs:
-  app-id:
-    description: GitHub App ID.
-    required: true
   private-key:
     description: GitHub App private key PEM.
     required: true
@@ -51,7 +48,7 @@ runs:
       id: create-token
       uses: actions/create-github-app-token@v2
       with:
-        app-id: ${{ inputs.app-id }}
+        app-id: 4210289
         private-key: ${{ inputs.private-key }}
         owner: ${{ inputs.owner || github.repository_owner }}
         repositories: ${{ inputs.repositories || github.event.repository.name }}

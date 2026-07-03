@@ -6,9 +6,8 @@ It creates a short-lived GitHub App installation token with [`actions/create-git
 
 ## Usage
 
-Add these to each repository that uses the action:
+Add this to each repository that uses the action:
 
-- Repository variable: `NOT_ADAM_APP_ID`
 - Repository secret: `NOT_ADAM_APP_PRIVATE_KEY`
 
 ```yaml
@@ -19,7 +18,6 @@ jobs:
       - id: not-adam
         uses: adampoit/not-adam@v1
         with:
-          app-id: ${{ vars.NOT_ADAM_APP_ID }}
           private-key: ${{ secrets.NOT_ADAM_APP_PRIVATE_KEY }}
 
       - uses: actions/checkout@v7
@@ -38,7 +36,6 @@ The token is scoped to the calling repository by default. Install the GitHub App
 
 | Input              | Description                                                        | Default                                 |
 | ------------------ | ------------------------------------------------------------------ | --------------------------------------- |
-| `app-id`           | GitHub App ID.                                                     | Required                                |
 | `private-key`      | GitHub App private key PEM.                                        | Required                                |
 | `owner`            | Installation owner.                                                | Calling repository owner                |
 | `repositories`     | Comma or newline-separated repository names to scope the token to. | Calling repository name                 |
